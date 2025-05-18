@@ -54,8 +54,8 @@ module pos_edge_det (clk, rst, sig, pos_edge);
     assign pos_edge = ~sig_dly & sig;
 endmodule
 
-module async_to_sync (clk, rst, slow_clk, async, sync);
-    input clk, rst, slow_clk, async;
+module async_to_sync (clk, rst, slow_clk_pe, async, sync);
+    input clk, rst, slow_clk_pe, async;
     output reg sync;
     
     reg intermediate;
@@ -64,20 +64,20 @@ module async_to_sync (clk, rst, slow_clk, async, sync);
         if (rst) begin
             intermediate <= 0;
             sync <= 0;
-        end else if (slow_clk) begin
+        end else if (slow_clk_pe) begin
             intermediate <= async;
             sync <= intermediate;
         end
     end
 endmodule
 
-module button_handle (clk, rst, slow_clk, bt_in, bt_out);
-    input clk, rst, slow_clk, bt_in;
+module button_handle (clk, rst, slow_clk_pe, bt_in, bt_out);
+    input clk, rst, slow_clk_pe, bt_in;
     output bt_out;
     
     wire bt_out_intermediate;
     
-    async_to_sync async_to_sync_0 (clk, rst, slow_clk, bt_in, bt_out_intermediate);
+    async_to_sync async_to_sync_0 (clk, rst, slow_clk_pe, bt_in, bt_out_intermediate);
     pos_edge_det pos_edge_det_0 (clk, rst, bt_out_intermediate, bt_out);
 endmodule
 
@@ -142,13 +142,14 @@ module pwm_in_button #(n = 624999, duty_size = 8, cycl_size = 8) (clk, rst, incr
     input clk, rst, increase_duty_bt, decrease_duty_bt, increase_freq_bt, decrease_freq_bt;
     output pwm_out;
     
-    wire increase_duty, decrease_duty, increase_freq, decrease_freq, clk100Hz;
+    wire increase_duty, decrease_duty, increase_freq, decrease_freq, clk100Hz, clk100Hz_pe;
     
-    button_handle button_handle_inc_duty (clk, rst, clk100Hz, increase_duty_bt, increase_duty);
-    button_handle button_handle_dec_duty( clk, rst, clk100Hz, decrease_duty_bt, decrease_duty);
-    button_handle button_handle_inc_freq (clk, rst, clk100Hz, increase_freq_bt, increase_freq);
-    button_handle button_handle_dec_freq (clk, rst, clk100Hz, decrease_freq_bt, decrease_freq);
+    button_handle button_handle_inc_duty (clk, rst, clk100Hz_pe, increase_duty_bt, increase_duty);
+    button_handle button_handle_dec_duty (clk, rst, clk100Hz_pe, decrease_duty_bt, decrease_duty);
+    button_handle button_handle_inc_freq (clk, rst, clk100Hz_pe, increase_freq_bt, increase_freq);
+    button_handle button_handle_dec_freq (clk, rst, clk100Hz_pe, decrease_freq_bt, decrease_freq);
     
     pwm_in_sync #(duty_size, cycl_size) pwm_in_sync_0 (clk, rst, increase_duty, decrease_duty, increase_freq, decrease_freq, pwm_out);
     slow_clk slow_clk_0(clk, rst, n, clk100Hz);
+    pos_edge_det pos_edge_det_clk100Hz(clk, rst, clk100Hz, clk100Hz_pe);
 endmodule
