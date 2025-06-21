@@ -2,9 +2,9 @@
 ## Synthesized and implemented on Arty Z7-20 with a 125MHz clock, the PWM controller has:
 Four buttons with 10ms debounce time, two for increasing and decreasing duty cycle, two for increasing and decreasing switching frequency
 
-The duty cycle resolution is 8 bits, or equivalently 256 levels, from 0% to 100%
+The duty cycle resolution is 8 bits, or equivalently 256 levels: 0 %, 0.3922 %, 0.7843 % , ..., 100 %
 
-The switching frequency resolution is 8 bits, or equivalently 256 levels, from 953.6743164Hz to 244.1406250kHz
+The switching frequency resolution is 8 bits, or equivalently 256 levels: 0.9537 kHz, 0.9574 kHz, 0.9612 kHz, ..., 244.1406 kHz
 
 ## Configure button debounce time
 The parameter `n` is given by:
